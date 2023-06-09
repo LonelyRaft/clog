@@ -154,6 +154,11 @@ int clog_set_logname(
         free(_log->m_log_name);
     _log->m_log_name = name_buf;
     _log->m_name_len = length;
+    if(_log->m_log_path)
+    {
+        free(_log->m_log_path);
+        _log->m_log_path = NULL;
+    }
     pthread_mutex_unlock(&_log->m_lock);
     return 0;
 }
@@ -185,6 +190,11 @@ int clog_set_logdir(
         free(_log->m_log_dir);
     _log->m_log_dir = dir_buf;
     _log->m_dir_len = length;
+    if(_log->m_log_path)
+    {
+        free(_log->m_log_path);
+        _log->m_log_path = NULL;
+    }
     pthread_mutex_unlock(&_log->m_lock);
     return 0;
 }
@@ -202,6 +212,46 @@ int clog_set_loglevel(CLog *_log, int _level)
     return 0;
 }
 
+int clog_get_logsize(CLog * _log)
+{
+    struct stat file_state = {0};
+    if(_log == NULL)
+        return file_state.st_size;
+    do {
+        pthread_mutex_lock(&_log->m_lock);
+        if(_log->m_log_path == NULL)
+            break;
+        int fd = open(
+            _log->m_log_path, O_RDONLY);
+        if(fd < 0)
+            break;
+        fstat(fd, &file_state);
+        close(fd);
+    }while(0);
+    pthread_mutex_unlock(&_log->m_lock);
+    return file_state.st_size;
+}
+
+int clog_clear(CLog * _log)
+{
+    int result = 0;
+    if(_log == NULL)
+        return result;
+    do {
+        pthread_mutex_lock(&_log->m_lock);
+        if(_log->m_log_path == NULL)
+            break;
+        int fd = open(
+            _log->m_log_path,
+            O_TRUNC | O_WRONLY);
+        if(fd < 0)
+            break;
+        close(fd);
+    }while(0);
+    pthread_mutex_unlock(&_log->m_lock);
+    return result;
+}
+
 int _clog_error(
     CLog* _log, const char* _file, int _line,
     const char* _func, const char* _fmt, ...)
@@ -209,7 +259,7 @@ int _clog_error(
     int result = 0;
     if(_log == NULL || _file == NULL || _line <= 0
         || _func == NULL || _fmt==NULL)
-        return -1;
+        return result;
     do {
         pthread_mutex_lock(&_log->m_lock);
         if(_log->m_log_level > CLOG_LEVEL_ERROR)
@@ -244,7 +294,7 @@ int _clog_warn(
     int result = 0;
     if(_log == NULL || _file == NULL || _line <= 0
         || _func == NULL || _fmt==NULL)
-        return -1;
+        return result;
     do {
         pthread_mutex_lock(&_log->m_lock);
         if(_log->m_log_level > CLOG_LEVEL_WARN)
@@ -279,7 +329,7 @@ int _clog_info(
     int result = 0;
     if(_log == NULL || _file == NULL || _line <= 0
         || _func == NULL || _fmt==NULL)
-        return -1;
+        return result;
     do {
         pthread_mutex_lock(&_log->m_lock);
         if(_log->m_log_level > CLOG_LEVEL_INFO)
@@ -314,7 +364,7 @@ int _clog_debug(
     int result = 0;
     if(_log == NULL || _file == NULL || _line <= 0
         || _func == NULL || _fmt==NULL)
-        return -1;
+        return result;
     do {
         pthread_mutex_lock(&_log->m_lock);
         if(_log->m_log_level > CLOG_LEVEL_DEBUG)
@@ -381,7 +431,7 @@ static int clog_write(
         if(length > 0)
             idx += length;
     }
-    do{
+    do {
         const char* path = clog_log_path(_log);
         if(path == NULL)
             break;

@@ -94,6 +94,20 @@ int clog_set_logdir(
 int clog_set_loglevel(
     CLog* _log, int _level);
 
+/************************************
+ * get size of all current logs
+ * @_log: a CLog object pointer
+ * @return: size of all current logs
+ ************************************/
+int clog_get_logsize(CLog * _log);
+
+/************************************
+ * clear all current logs
+ * @_log: a CLog object pointer
+ * @return: 0 is sucess
+ ************************************/
+int clog_clear(CLog * _log);
+
 int _clog_error(CLog* _log,
     const char* _file, int _line,
     const char* _func,
