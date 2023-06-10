@@ -288,12 +288,9 @@ CLog *clog_read_cfg(
     int length = 0;
     unsigned char start = 0;
     unsigned char comment = 0;
-    unsigned char cfgcnt = 0;
     CLogConfig config =
         {1024, 1, 1, 0, 0, 0, CLOG_LEVEL_WARN, 0, 0, NULL, NULL};
     do {
-        if(cfgcnt >= 9)
-            break;
         length = clog_readline(fd, buffer, 511);
         if(length < 2)
             break;
@@ -331,7 +328,6 @@ CLog *clog_read_cfg(
         if(data == NULL)
             continue;
         data++;
-        cfgcnt++; // assuming this is a valid configuration
         if(length > 8 && strncmp(buffer, "msgsize", 7) == 0)
         {
             while((*data) && !isdigit(*data))
@@ -466,10 +462,6 @@ CLog *clog_read_cfg(
                 continue;
             strcpy(config.name, name);
             config.name_len = nmlen;
-        }
-        else
-        {
-            cfgcnt--; // assumption is invalid
         }
     }while(1);
     close(fd);
@@ -678,6 +670,7 @@ int clog_clear(CLog * _log)
         return result;
     do {
         pthread_mutex_lock(&_log->m_lock);
+        clog_log_path(_log);
         if(_log->m_log_path == NULL)
             break;
         int fd = open(
