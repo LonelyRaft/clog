@@ -2,6 +2,10 @@
 #ifndef CLOG_H
 #define CLOG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 #define CLOG_LEVEL_ERROR 0x04
 #define CLOG_LEVEL_WARN 0x03
 #define CLOG_LEVEL_INFO 0x02
@@ -188,5 +192,9 @@ fmt, ##__VA_ARGS__)
 #define clog_debug(log, fmt, ...) _clog_debug(\
 log, __FILE__, __LINE__, __FUNCTION__, \
 fmt, ##__VA_ARGS__)
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #endif // CLOG_H

@@ -225,10 +225,9 @@ static int clog_write(
     }while(0);
     if(_log->m_show_stdout)
     {
-        printf("%s%s\n%s",
+        printf("%s%s%s%s\n",
                stdfmt[_head->level],
-               header, stdfmt[0]);
-        printf("%s\n",_message);
+               header, stdfmt[0], _message);
     }
     return result;
 }
