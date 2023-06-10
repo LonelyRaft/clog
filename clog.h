@@ -17,6 +17,14 @@ typedef struct CLog CLog;
 CLog *clog_create(unsigned int _msgsz_max);
 
 /************************************
+ * create a CLog object by config file
+ * @_cfgpath: config file path
+ * @return: a CLog object pointer or NULL
+ ************************************/
+CLog *clog_read_cfg(
+    const char* _cfgpath);
+
+/************************************
  * free a CLog object
  * @_log: a CLog object pointer created by clog_create
  ************************************/
@@ -86,6 +94,15 @@ int clog_set_logdir(
     CLog* _log, const char* _dire);
 
 /************************************
+ * set path for log file with env var
+ * @_log: a CLog object pointer
+ * @_envvar:  env var name
+ * @return: 0 is success
+ ************************************/
+int clog_set_logdir_envvar(
+    CLog* _log, const char* _envvar);
+
+/************************************
  * set level for log
  * @_log: a CLog object pointer
  * @_level:  log level
@@ -137,7 +154,7 @@ int _clog_debug(CLog* _log,
 *************************************/
 #define clog_error(log, fmt, ...) _clog_error(\
 log, __FILE__, __LINE__, __FUNCTION__, \
-fmt, __VA_ARGS__)
+fmt, ##__VA_ARGS__)
 
 /************************************
  * output warning message
@@ -148,7 +165,7 @@ fmt, __VA_ARGS__)
 *************************************/
 #define clog_warn(log, fmt, ...) _clog_warn(\
 log, __FILE__, __LINE__, __FUNCTION__, \
-fmt, __VA_ARGS__)
+fmt, ##__VA_ARGS__)
 
 /************************************
  * output information message
@@ -159,7 +176,7 @@ fmt, __VA_ARGS__)
 *************************************/
 #define clog_info(log, fmt, ...) _clog_info(\
 log, __FILE__, __LINE__, __FUNCTION__, \
-fmt, __VA_ARGS__)
+fmt, ##__VA_ARGS__)
 
 /************************************
  * output debug message
@@ -170,6 +187,6 @@ fmt, __VA_ARGS__)
 *************************************/
 #define clog_debug(log, fmt, ...) _clog_debug(\
 log, __FILE__, __LINE__, __FUNCTION__, \
-fmt, __VA_ARGS__)
+fmt, ##__VA_ARGS__)
 
 #endif // CLOG_H
