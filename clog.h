@@ -46,7 +46,7 @@ int clog_show_loglevel(
  * @_show:  0 is not
  * @return: 0 is success
  ************************************/
-int clog_show_postion(
+int clog_show_position(
     CLog* _log, int _show);
 
 /************************************

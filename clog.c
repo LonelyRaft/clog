@@ -14,6 +14,14 @@
 #define O_BINARY 0
 #endif // O_BINARY
 
+static const char* stdfmt[]={
+    "\e[0m", // clear format
+    "\e[1;34m", // bold and blue
+    "\e[1;32m", // bold and green
+    "\e[1;33m", // bold and yellow
+    "\e[1;31m", // bold and red
+};
+
 typedef struct CLog{
     unsigned char m_show_datetime;
     unsigned char m_show_position;
@@ -105,7 +113,7 @@ int clog_show_loglevel(
     return 0;
 }
 
-int clog_show_postion(
+int clog_show_position(
     CLog* _log, int _show)
 {
     if(_log == NULL)
@@ -447,7 +455,12 @@ static int clog_write(
         result = idx + _length;
     }while(0);
     if(_log->m_show_stdout)
-        printf("%s\n%s\n", header, _message);
+    {
+        printf("%s%s\n%s",
+               stdfmt[_head->level],
+               header, stdfmt[0]);
+        printf("%s\n",_message);
+    }
     return result;
 }
 
