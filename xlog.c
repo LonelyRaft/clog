@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-clog_t *xlog  =NULL;
+clog_t *xlog = NULL;
 
 void xlog_init(const char *_name)
 {
@@ -13,7 +13,7 @@ void xlog_init(const char *_name)
     do
     {
         const char* home =
-                getenv("PRJHOME1");
+                getenv("PRJHOME");
         if(home == NULL)
             break;
         int home_len = strlen(home);

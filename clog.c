@@ -33,7 +33,7 @@ typedef struct clog_config_t
     unsigned char b_stdout;
     unsigned char b_name;
     unsigned char level;
-    unsigned char name_len;
+    unsigned int name_len;
     unsigned int dir_len;
     char *directory;
     char *name;
