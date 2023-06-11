@@ -12,162 +12,162 @@ extern "C"
 #define CLOG_LEVEL_INFO 0x02
 #define CLOG_LEVEL_DEBUG 0x01
 
-    typedef struct CLog CLog;
+    typedef struct clog_t clog_t;
 
     /************************************
-     * create a CLog object
+     * # create a CLog object
      * @_msgsz_max: max length of a piece of message
      * @return: a CLog object pointer or NULL
      ************************************/
-    CLog *clog_create(unsigned int _msgsz_max);
+    clog_t *clog_create(unsigned int _msgsz_max);
 
     /************************************
-     * create a CLog object by config file
+     * # create a CLog object by config file
      * @_cfgpath: config file path
      * @return: a CLog object pointer or NULL
      ************************************/
-    CLog *clog_read_cfg(
+    clog_t *clog_read_cfg(
         const char *_cfgpath);
 
     /************************************
-     * free a CLog object
+     * # free a CLog object
      * @_log: a CLog object pointer created by clog_create
      ************************************/
-    void clog_desrtroy(CLog *_log);
+    void clog_desrtroy(clog_t *_log);
 
     /************************************
-     * show date and time in log
+     * # show date and time in log
      * @_log: a CLog object pointer
      * @_show:  0 is not
      * @return: 0 is success
      ************************************/
     int clog_use_datetime(
-        CLog *_log, int _show);
+        clog_t *_log, int _show);
 
     /************************************
-     * show log level in log
+     * # show log level in log
      * @_log: a CLog object pointer
      * @_show:  0 is not
      * @return: 0 is success
      ************************************/
     int clog_use_level(
-        CLog *_log, int _show);
+        clog_t *_log, int _show);
 
     /************************************
-     * show position in log
+     * # show position in log
      * @_log: a CLog object pointer
      * @_show:  0 is not
      * @return: 0 is success
      ************************************/
     int clog_use_position(
-        CLog *_log, int _show);
+        clog_t *_log, int _show);
 
     /************************************
-     * show function in log
+     * # show function in log
      * @_log: a CLog object pointer
      * @_show:  0 is not
      * @return: 0 is success
      ************************************/
     int clog_use_function(
-        CLog *_log, int _show);
+        clog_t *_log, int _show);
 
     /************************************
-     * print logs on stdout at the same time
+     * # print logs on stdout at the same time
      * @_log: a CLog object pointer
      * @_show:  0 is not
      * @return: 0 is success
      ************************************/
     int clog_use_stdout(
-        CLog *_log, int _show);
+        clog_t *_log, int _show);
 
     /************************************
-     * show log name in log
+     * # show log name in log
      * @_log: a CLog object pointer
      * @_show:  0 is not
      * @return: 0 is success
      ************************************/
     int clog_use_name(
-        CLog *_log, int _show);
+        clog_t *_log, int _show);
 
     /************************************
-     * set name for log file
+     * # set name for log file
      * @_log: a CLog object pointer
      * @_name:  new file name
      * @return: 0 is success
      ************************************/
     int clog_set_name(
-        CLog *_log, const char *_name);
+        clog_t *_log, const char *_name);
 
     /************************************
-     * set path for log file
+     * # set path for log file
      * @_log: a CLog object pointer
      * @_dire:  new file directory
      * @return: 0 is success
      ************************************/
     int clog_set_dir(
-        CLog *_log, const char *_dire);
+        clog_t *_log, const char *_dire);
 
     /************************************
-     * set path for log file with env var
+     * # set path for log file with env var
      * @_log: a CLog object pointer
      * @_envvar:  env var name
      * @return: 0 is success
      ************************************/
     int clog_set_dir_envvar(
-        CLog *_log, const char *_envvar);
+        clog_t *_log, const char *_envvar);
 
     /************************************
-     * set level for log
+     * # set level for log
      * @_log: a CLog object pointer
      * @_level:  log level
      * @return: 0 is success
      ************************************/
     int clog_set_level(
-        CLog *_log, int _level);
+        clog_t *_log, int _level);
 
     /************************************
-     * get size of all current logs
+     * # get size of all current logs
      * @_log: a CLog object pointer
      * @return: size of all current logs
      ************************************/
-    int clog_get_size(CLog *_log);
+    int clog_get_size(clog_t *_log);
 
     /************************************
-     * clear all current logs
+     * # clear all current logs
      * @_log: a CLog object pointer
      * @return: 0 is sucess
      ************************************/
-    int clog_clear(CLog *_log);
+    int clog_clear(clog_t *_log);
 
     int _clog_error(
-        CLog *_log, const char *_file, int _line,
+        clog_t *_log, const char *_file, int _line,
         const char *_func, const char *_fmt, ...);
 
     int _clog_warn(
-        CLog *_log, const char *_file, int _line,
+        clog_t *_log, const char *_file, int _line,
         const char *_func, const char *_fmt, ...);
 
     int _clog_info(
-        CLog *_log, const char *_file, int _line,
+        clog_t *_log, const char *_file, int _line,
         const char *_func, const char *_fmt, ...);
 
     int _clog_debug(
-        CLog *_log, const char *_file, int _line,
+        clog_t *_log, const char *_file, int _line,
         const char *_func, const char *_fmt, ...);
 
 /************************************
- * output error message
+ * # output error message
  * @log:    CLog object pointer
  * @fmt:    message format
  * @...:    message data
- * return:   message length
+ * @return:   message length
  *************************************/
 #define clog_error(log, fmt, ...) _clog_error( \
     log, __FILE__, __LINE__, __FUNCTION__,     \
     fmt, ##__VA_ARGS__)
 
 /************************************
- * output warning message
+ * # output warning message
  * @log:    CLog object pointer
  * @fmt:    message format
  * @...:    message data
@@ -178,7 +178,7 @@ extern "C"
     fmt, ##__VA_ARGS__)
 
 /************************************
- * output information message
+ * # output information message
  * @log:    CLog object pointer
  * @fmt:    message format
  * @...:    message data
@@ -189,7 +189,7 @@ extern "C"
     fmt, ##__VA_ARGS__)
 
 /************************************
- * output debug message
+ * # output debug message
  * @log:    CLog object pointer
  * @fmt:    message format
  * @...:    message data

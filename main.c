@@ -1,7 +1,8 @@
 
+#include <unistd.h>
 #include "xlog.h"
 
-CLog *xlog = 0;
+clog_t *xlog = 0;
 
 int main(int argc, char* argv[])
 {
@@ -19,12 +20,19 @@ int main(int argc, char* argv[])
 //    clog_debug(glog, "%d %s", argc, argv[0]);
 
     xlogError("error message!");
+    sleep(1);
     xlogError("%s", argv[0]);
+    sleep(1);
     xlogWarn("warn message!");
+    sleep(1);
     xlogWarn("%s", argv[0]);
+    sleep(1);
     xlogInfo("info message!");
+    sleep(1);
     xlogInfo("%s", argv[0]);
+    sleep(1);
     xlogDebug("debug message!");
+    sleep(1);
     xlogDebug("%s", argv[0]);
 
     // free clog object

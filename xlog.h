@@ -4,7 +4,7 @@
 
 #include "clog.h"
 
-extern CLog *xlog;
+extern clog_t *xlog;
 
 #define xlogError(fmt, ...) clog_error(xlog, fmt, ##__VA_ARGS__)
 #define xlogWarn(fmt, ...) clog_warn(xlog, fmt, ##__VA_ARGS__)

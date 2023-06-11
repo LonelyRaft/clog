@@ -23,7 +23,7 @@ static const char *stdfmt[] = {
     "\e[1;31m", // bold and red
 };
 
-typedef struct CLogConfig
+typedef struct clog_config_t
 {
     unsigned int msgsize;
     unsigned char b_datetime;
@@ -37,23 +37,23 @@ typedef struct CLogConfig
     unsigned int dir_len;
     char *directory;
     char *name;
-} CLogConfig;
+} clog_config_t;
 
-typedef struct CLog
+typedef struct clog_t
 {
-    CLogConfig config;
+    clog_config_t config;
     char *m_msgbuf;
     char *m_path;
     pthread_mutex_t m_lock;
-} CLog;
+} clog_t;
 
-typedef struct CLogHead
+typedef struct clog_head_t
 {
     const char *file;
     int line;
     const char *func;
     int level;
-} CLogHead;
+} clog_head_t;
 
 static int clog_datetime(
     char *_datetime)
@@ -69,7 +69,7 @@ static int clog_datetime(
     return result;
 }
 
-static int clog_loglevel(
+static int clog_level2str(
     char *_log_level, int _level)
 {
     if (_log_level == NULL)
@@ -95,13 +95,13 @@ static int clog_loglevel(
     return strlen(_log_level);
 }
 
-static const char *clog_log_path(
-    CLog *_log)
+static const char *clog_gen_path(
+    clog_t *_log)
 {
     if (_log == NULL)
         return NULL;
-    CLogConfig *config =
-        (CLogConfig *)_log;
+    clog_config_t *config =
+        (clog_config_t *)_log;
     if (config->name == NULL)
     {
         config->name =
@@ -165,16 +165,16 @@ static const char *clog_log_path(
 }
 
 static int clog_write(
-    CLog *_log, const CLogHead *_head,
+    clog_t *_log, const clog_head_t *_head,
     const char *_message, int _length)
 {
     int result = 0;
     char header[512] = {0};
     int idx = 0;
     int length = 0;
-    const CLogConfig *config =
-        (CLogConfig *)_log;
-    clog_log_path(_log);
+    const clog_config_t *config =
+        (clog_config_t *)_log;
+    clog_gen_path(_log);
     if (config->b_datetime)
     {
         length = clog_datetime(header + idx);
@@ -183,7 +183,7 @@ static int clog_write(
     }
     if (config->b_level)
     {
-        length = clog_loglevel(
+        length = clog_level2str(
             header + idx, _head->level);
         if (length > 0)
             idx += length;
@@ -218,7 +218,7 @@ static int clog_write(
     }
     do
     {
-        const char *path = clog_log_path(_log);
+        const char *path = clog_gen_path(_log);
         if (path == NULL)
             break;
         int fd = open(
@@ -262,20 +262,20 @@ static int clog_readline(
     return idx;
 }
 
-CLog *clog_create(
+clog_t *clog_create(
     unsigned int _msgsz_max)
 {
-    CLog *log = NULL;
+    clog_t *log = NULL;
     unsigned int size =
-        UINT_MAX - sizeof(CLog) - 1;
+        UINT_MAX - sizeof(clog_t) - 1;
     if (_msgsz_max == 0 ||
         _msgsz_max > size)
         return log;
-    size = _msgsz_max + sizeof(CLog) + 1;
-    log = (CLog *)malloc(size);
+    size = _msgsz_max + sizeof(clog_t) + 1;
+    log = (clog_t *)malloc(size);
     if (log == NULL)
         return log;
-    memset(log, 0, sizeof(CLog));
+    memset(log, 0, sizeof(clog_t));
     log->config.b_datetime = 1;
     log->config.b_level = 1;
     log->config.level =
@@ -287,7 +287,7 @@ CLog *clog_create(
     return log;
 }
 
-CLog *clog_read_cfg(
+clog_t *clog_read_cfg(
     const char *_cfgpath)
 {
     if (_cfgpath == NULL ||
@@ -300,7 +300,7 @@ CLog *clog_read_cfg(
     int length = 0;
     unsigned char start = 0;
     unsigned char comment = 0;
-    CLogConfig config = {
+    clog_config_t config = {
         1024, 1, 1, 0, 0, 0, 0,
         CLOG_LEVEL_WARN, 0, 0,
         NULL, NULL};
@@ -503,7 +503,7 @@ CLog *clog_read_cfg(
     close(fd);
     if (config.msgsize <= 0)
         config.msgsize = 1024;
-    CLog *log = (CLog *)clog_create(
+    clog_t *log = (clog_t *)clog_create(
         config.msgsize);
     if (log == NULL)
     {
@@ -519,12 +519,12 @@ CLog *clog_read_cfg(
     return log;
 }
 
-void clog_desrtroy(CLog *_log)
+void clog_desrtroy(clog_t *_log)
 {
     if (_log == NULL)
         return;
-    CLogConfig *config =
-        (CLogConfig *)_log;
+    clog_config_t *config =
+        (clog_config_t *)_log;
     if (config->directory)
         free(config->directory);
     if (config->name)
@@ -539,7 +539,7 @@ void clog_desrtroy(CLog *_log)
 }
 
 int clog_use_datetime(
-    CLog *_log, int _show)
+    clog_t *_log, int _show)
 {
     if (_log == NULL)
         return -1;
@@ -550,7 +550,7 @@ int clog_use_datetime(
 }
 
 int clog_use_level(
-    CLog *_log, int _show)
+    clog_t *_log, int _show)
 {
     if (_log == NULL)
         return -1;
@@ -561,7 +561,7 @@ int clog_use_level(
 }
 
 int clog_use_position(
-    CLog *_log, int _show)
+    clog_t *_log, int _show)
 {
     if (_log == NULL)
         return -1;
@@ -572,7 +572,7 @@ int clog_use_position(
 }
 
 int clog_use_function(
-    CLog *_log, int _show)
+    clog_t *_log, int _show)
 {
     if (_log == NULL)
         return -1;
@@ -583,7 +583,7 @@ int clog_use_function(
 }
 
 int clog_use_stdout(
-    CLog *_log, int _show)
+    clog_t *_log, int _show)
 {
     if (_log == NULL)
         return -1;
@@ -594,7 +594,7 @@ int clog_use_stdout(
 }
 
 int clog_use_name(
-    CLog *_log, int _show)
+    clog_t *_log, int _show)
 {
     if (_log == NULL)
         return -1;
@@ -605,7 +605,7 @@ int clog_use_name(
 }
 
 int clog_set_name(
-    CLog *_log, const char *_name)
+    clog_t *_log, const char *_name)
 {
     if (_log == NULL || _name == NULL ||
         _name[0] == 0)
@@ -629,7 +629,7 @@ int clog_set_name(
 }
 
 int clog_set_dir(
-    CLog *_log, const char *_dir)
+    clog_t *_log, const char *_dir)
 {
     if (_log == NULL || _dir == NULL ||
         _dir[0] == 0)
@@ -664,7 +664,7 @@ int clog_set_dir(
 }
 
 int clog_set_dir_envvar(
-    CLog *_log, const char *_envvar)
+    clog_t *_log, const char *_envvar)
 {
     if (_envvar == NULL)
         return -1;
@@ -672,7 +672,7 @@ int clog_set_dir_envvar(
 }
 
 int clog_set_level(
-    CLog *_log, int _level)
+    clog_t *_log, int _level)
 {
     if (_log == NULL)
         return -1;
@@ -685,7 +685,7 @@ int clog_set_level(
     return 0;
 }
 
-int clog_get_size(CLog *_log)
+int clog_get_size(clog_t *_log)
 {
     struct stat file_state = {0};
     if (_log == NULL)
@@ -706,7 +706,7 @@ int clog_get_size(CLog *_log)
     return file_state.st_size;
 }
 
-int clog_clear(CLog *_log)
+int clog_clear(clog_t *_log)
 {
     int result = 0;
     if (_log == NULL)
@@ -714,7 +714,7 @@ int clog_clear(CLog *_log)
     do
     {
         pthread_mutex_lock(&_log->m_lock);
-        clog_log_path(_log);
+        clog_gen_path(_log);
         if (_log->m_path == NULL)
             break;
         int fd = open(
@@ -729,7 +729,7 @@ int clog_clear(CLog *_log)
 }
 
 int _clog_error(
-    CLog *_log, const char *_file, int _line,
+    clog_t *_log, const char *_file, int _line,
     const char *_func, const char *_fmt, ...)
 {
     int result = 0;
@@ -752,7 +752,7 @@ int _clog_error(
             break;
         _log->m_msgbuf[result++] = '\n';
         _log->m_msgbuf[result] = 0;
-        CLogHead header = {0};
+        clog_head_t header = {0};
         header.file = _file;
         header.line = _line;
         header.func = _func;
@@ -766,7 +766,7 @@ int _clog_error(
 }
 
 int _clog_warn(
-    CLog *_log, const char *_file, int _line,
+    clog_t *_log, const char *_file, int _line,
     const char *_func, const char *_fmt, ...)
 {
     int result = 0;
@@ -789,7 +789,7 @@ int _clog_warn(
             break;
         _log->m_msgbuf[result++] = '\n';
         _log->m_msgbuf[result] = 0;
-        CLogHead header = {0};
+        clog_head_t header = {0};
         header.file = _file;
         header.line = _line;
         header.func = _func;
@@ -803,7 +803,7 @@ int _clog_warn(
 }
 
 int _clog_info(
-    CLog *_log, const char *_file, int _line,
+    clog_t *_log, const char *_file, int _line,
     const char *_func, const char *_fmt, ...)
 {
     int result = 0;
@@ -826,7 +826,7 @@ int _clog_info(
             break;
         _log->m_msgbuf[result++] = '\n';
         _log->m_msgbuf[result] = 0;
-        CLogHead header = {0};
+        clog_head_t header = {0};
         header.file = _file;
         header.line = _line;
         header.func = _func;
@@ -840,7 +840,7 @@ int _clog_info(
 }
 
 int _clog_debug(
-    CLog *_log, const char *_file, int _line,
+    clog_t *_log, const char *_file, int _line,
     const char *_func, const char *_fmt, ...)
 {
     int result = 0;
@@ -863,7 +863,7 @@ int _clog_debug(
             break;
         _log->m_msgbuf[result++] = '\n';
         _log->m_msgbuf[result] = 0;
-        CLogHead header = {0};
+        clog_head_t header = {0};
         header.file = _file;
         header.line = _line;
         header.func = _func;
