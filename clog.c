@@ -109,16 +109,17 @@ static const char *clog_gen_path(
         if (config->name == NULL)
             return NULL;
         srand((unsigned int)time(NULL));
-        config->name_len = snprintf(
+        int result = snprintf(
             config->name, 63,
             "clog%d", rand() % 1001);
-        if (config->name_len < 0)
+        if (result < 0)
         {
-            config->name_len = 0;
             free(config->name);
             config->name = NULL;
+            config->name_len = 0;
             return NULL;
         }
+        config->name_len = result;
     }
     if (config->directory == NULL)
     {
