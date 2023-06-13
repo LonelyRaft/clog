@@ -169,10 +169,8 @@ static int clog_write(
     clog_t *_log, const clog_head_t *_head,
     const char *_message, int _length)
 {
-    int result = 0;
+    int result = 0, idx = 0, length = 0;
     char header[512] = {0};
-    int idx = 0;
-    int length = 0;
     const clog_config_t *config =
         (clog_config_t *)_log;
     clog_gen_path(_log);
@@ -212,10 +210,15 @@ static int clog_write(
     if (config->b_position)
     {
         length = snprintf(
-            header + idx, 255 - idx, "[%s:%d]",
+            header + idx, 511 - idx, "[%s:%d]",
             _head->file, _head->line);
         if (length > 0)
             idx += length;
+    }
+    if (idx > 0)
+    {
+        header[idx++] = '\n';
+        header[idx] = 0;
     }
     do
     {
@@ -228,7 +231,6 @@ static int clog_write(
             S_IWUSR | S_IRUSR);
         if (fd < 0)
             break;
-        header[idx++] = '\n';
         write(fd, header, idx);
         write(fd, _message, _length);
         close(fd);
@@ -236,9 +238,12 @@ static int clog_write(
     } while (0);
     if (config->b_stdout)
     {
-        printf("%s%s%s%s\n",
-               stdfmt[_head->level],
-               header, stdfmt[0], _message);
+        if (idx > 0)
+            fprintf(stderr, "%s%s%s%s\n",
+                    stdfmt[_head->level],
+                    header, stdfmt[0], _message);
+        else
+            fprintf(stderr, "%s", _message);
     }
     return result;
 }
