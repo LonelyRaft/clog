@@ -7,6 +7,7 @@ extern "C"
 {
 #endif // __cplusplus
 
+#define CLOG_LEVEL_CLOSE 0x05
 #define CLOG_LEVEL_ERROR 0x04
 #define CLOG_LEVEL_WARN 0x03
 #define CLOG_LEVEL_INFO 0x02

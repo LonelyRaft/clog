@@ -243,7 +243,9 @@ static int clog_write(
                     stdfmt[_head->level],
                     header, stdfmt[0], _message);
         else
-            fprintf(stderr, "%s", _message);
+            fprintf(stderr, "%s%s%s",
+                    stdfmt[_head->level],
+                    _message, stdfmt[0]);
     }
     return result;
 }
@@ -374,7 +376,7 @@ clog_t *clog_read_cfg(
             if (p != NULL)
                 config.b_datetime = 0;
         }
-        else if (length > 12 && strncmp(buffer, "use_level", 11) == 0)
+        else if (length > 10 && strncmp(buffer, "use_level", 9) == 0)
         {
             const char *p =
                 strstr(data, "true");
@@ -462,7 +464,13 @@ clog_t *clog_read_cfg(
             }
             p = strstr(data, "ERROR");
             if (p != NULL)
+            {
                 config.level = CLOG_LEVEL_ERROR;
+                continue;
+            }
+            p = strstr(data, "CLOSE");
+            if (p != NULL)
+                config.level = CLOG_LEVEL_CLOSE;
         }
         else if (length > 4 && strncmp(buffer, "dir", 3) == 0)
         {

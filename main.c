@@ -1,5 +1,6 @@
 
 #include <unistd.h>
+#include <stdlib.h>
 #include "xlog.h"
 
 int main(int argc, char* argv[])
