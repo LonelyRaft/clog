@@ -43,8 +43,16 @@ int main(int argc, char* argv[])
     xlogDebug("debug message!");
     sleep(1);
     xlogDebug("%s", argv[0]);
+    sleep(1);
+    xlogStatus("status message!");
+    sleep(1);
+    xlogStatus("%s", argv[0]);
 
     xlog_deinit();
     return 0;
 }
 ```
+
+## status
+
+> The `status` message does not have a log header and will be output to stderr regardless of the log level. If you want to use log headers, please use the `debug` interface.

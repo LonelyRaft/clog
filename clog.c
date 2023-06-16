@@ -21,7 +21,7 @@ static const char *stdfmt[] = {
     "\e[1;32m",  // bold and green
     "\e[1;33m",  // bold and yellow
     "\e[1;31m",  // bold and red
-    "\e[1;35m",  // bold and red
+    "\e[1;35m",  // bold and purple
 };
 
 typedef struct clog_config_t {

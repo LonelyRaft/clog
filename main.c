@@ -25,6 +25,8 @@ int main(int argc, char* argv[])
     sleep(1);
     xlogDebug("%s", argv[0]);
     sleep(1);
+    xlogStatus("status message!");
+    sleep(1);
     xlogStatus("%s", argv[0]);
 
     xlog_deinit();
