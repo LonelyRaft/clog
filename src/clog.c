@@ -1,30 +1,33 @@
 #include "clog.h"
 #include <ctype.h>
-#include <fcntl.h>
 #include <limits.h>
-#include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-#ifndef O_BINARY
-    #define O_BINARY 0
-#endif  // O_BINARY
+#ifdef _WIN32
+#define localtime_r(secs, datetime) \
+    localtime_s(datetime, secs);
+#endif
 
 static const char *stdfmt[] = {
-    "\e[0m",     // clear format
-    "\e[1;34m",  // bold and blue
-    "\e[1;32m",  // bold and green
-    "\e[1;33m",  // bold and yellow
-    "\e[1;31m",  // bold and red
-    "\e[1;35m",  // bold and purple
+    "\033[0m",     // clear format
+    "\033[1;34m",  // bold and blue
+    "\033[1;32m",  // bold and green
+    "\033[1;33m",  // bold and yellow
+    "\033[1;31m",  // bold and red
+    "\033[1;35m",  // bold and purple
 };
 
-typedef struct clog_config_t {
+typedef struct clog_config_t
+{
     unsigned int msgsize;
     unsigned char b_datetime;
     unsigned char b_level;
@@ -39,21 +42,24 @@ typedef struct clog_config_t {
     char *name;
 } clog_config_t;
 
-typedef struct clog_t {
+typedef struct clog_t
+{
     clog_config_t config;
     char *m_msgbuf;
     char *m_path;
     pthread_mutex_t *m_lock;
 } clog_t;
 
-typedef struct clog_head_t {
+typedef struct clog_head_t
+{
     const char *file;
     const char *func;
     size_t line;
-    size_t level;
+    unsigned char level;
 } clog_head_t;
 
-static int clog_datetime(char *_datetime) {
+static int clog_datetime(char *_datetime)
+{
     time_t seconds = time(0);
     struct tm curr = {0};
     localtime_r(&seconds, &curr);
@@ -65,7 +71,8 @@ static int clog_datetime(char *_datetime) {
     return result;
 }
 
-static int clog_level2str(char *_log_level, int _level) {
+static int clog_level2str(char *_log_level, int _level)
+{
     if (_log_level == NULL) {
         return 0;
     }
@@ -89,7 +96,8 @@ static int clog_level2str(char *_log_level, int _level) {
     return strlen(_log_level);
 }
 
-static const char *clog_gen_path(clog_t *_log) {
+static const char *clog_gen_path(clog_t *_log)
+{
     if (_log == NULL) {
         return NULL;
     }
@@ -155,7 +163,8 @@ static const char *clog_gen_path(clog_t *_log) {
 
 static int clog_write(
     clog_t *_log, const clog_head_t *_head,
-    const char *_message, int _length) {
+    const char *_message, int _length)
+{
     int result = 0, idx = 0, length = 0;
     char header[512] = {0};
     const clog_config_t *config =
@@ -215,7 +224,7 @@ static int clog_write(
         }
         int fd = open(
                 path,
-                O_CREAT | O_BINARY | O_WRONLY | O_APPEND,
+                O_CREAT | O_WRONLY | O_APPEND,
                 S_IWUSR | S_IRUSR);
         if (fd < 0) {
             break;
@@ -227,7 +236,7 @@ static int clog_write(
     } while (0);
     if (config->b_stdout) {
         if (idx > 0) {
-            fprintf(stderr, "%s%s%s%s\n",
+            fprintf(stderr, "%s%s%s%s",
                 stdfmt[_head->level],
                 header, stdfmt[0], _message);
         } else {
@@ -239,7 +248,8 @@ static int clog_write(
     return result;
 }
 
-static int clog_readline(int _fd, char *_buff, int size) {
+static int clog_readline(int _fd, char *_buff, int size)
+{
     int idx = 0;
     char ret = 0;
     char tmp = '\n';
@@ -259,7 +269,8 @@ static int clog_readline(int _fd, char *_buff, int size) {
     return idx;
 }
 
-clog_t *clog_create(unsigned int _msgsz_max) {
+clog_t *clog_create(unsigned int _msgsz_max)
+{
     clog_t *log = NULL;
     unsigned int size =
         UINT_MAX - sizeof(clog_t) -
@@ -288,7 +299,8 @@ clog_t *clog_create(unsigned int _msgsz_max) {
     return log;
 }
 
-clog_t *clog_read_cfg(const char *_cfgpath) {
+clog_t *clog_read_cfg(const char *_cfgpath)
+{
     if (_cfgpath == NULL ||
         _cfgpath[0] == 0) {
         return NULL;
@@ -510,7 +522,8 @@ clog_t *clog_read_cfg(const char *_cfgpath) {
     return log;
 }
 
-void clog_desrtroy(clog_t *_log) {
+void clog_desrtroy(clog_t *_log)
+{
     if (_log == NULL) {
         return;
     }
@@ -532,7 +545,8 @@ void clog_desrtroy(clog_t *_log) {
     _log = NULL;
 }
 
-int clog_use_datetime(clog_t *_log, int _show) {
+int clog_use_datetime(clog_t *_log, int _show)
+{
     if (_log == NULL) {
         return -1;
     }
@@ -542,7 +556,8 @@ int clog_use_datetime(clog_t *_log, int _show) {
     return 0;
 }
 
-int clog_use_level(clog_t *_log, int _show) {
+int clog_use_level(clog_t *_log, int _show)
+{
     if (_log == NULL) {
         return -1;
     }
@@ -552,7 +567,8 @@ int clog_use_level(clog_t *_log, int _show) {
     return 0;
 }
 
-int clog_use_position(clog_t *_log, int _show) {
+int clog_use_position(clog_t *_log, int _show)
+{
     if (_log == NULL) {
         return -1;
     }
@@ -562,7 +578,8 @@ int clog_use_position(clog_t *_log, int _show) {
     return 0;
 }
 
-int clog_use_function(clog_t *_log, int _show) {
+int clog_use_function(clog_t *_log, int _show)
+{
     if (_log == NULL) {
         return -1;
     }
@@ -572,7 +589,8 @@ int clog_use_function(clog_t *_log, int _show) {
     return 0;
 }
 
-int clog_use_stdout(clog_t *_log, int _show) {
+int clog_use_stdout(clog_t *_log, int _show)
+{
     if (_log == NULL) {
         return -1;
     }
@@ -582,7 +600,8 @@ int clog_use_stdout(clog_t *_log, int _show) {
     return 0;
 }
 
-int clog_use_name(clog_t *_log, int _show) {
+int clog_use_name(clog_t *_log, int _show)
+{
     if (_log == NULL) {
         return -1;
     }
@@ -592,7 +611,8 @@ int clog_use_name(clog_t *_log, int _show) {
     return 0;
 }
 
-int clog_set_name(clog_t *_log, const char *_name) {
+int clog_set_name(clog_t *_log, const char *_name)
+{
     if (_log == NULL ||
         _name == NULL ||
         _name[0] == 0) {
@@ -618,7 +638,8 @@ int clog_set_name(clog_t *_log, const char *_name) {
     return 0;
 }
 
-int clog_set_dir(clog_t *_log, const char *_dir) {
+int clog_set_dir(clog_t *_log, const char *_dir)
+{
     if (_log == NULL ||
         _dir == NULL || _dir[0] == 0) {
         return -1;
@@ -653,14 +674,16 @@ int clog_set_dir(clog_t *_log, const char *_dir) {
     return 0;
 }
 
-int clog_set_dir_envvar(clog_t *_log, const char *_envvar) {
+int clog_set_dir_envvar(clog_t *_log, const char *_envvar)
+{
     if (_envvar == NULL) {
         return -1;
     }
     return clog_set_dir(_log, getenv(_envvar));
 }
 
-int clog_set_level(clog_t *_log, int _level) {
+int clog_set_level(clog_t *_log, int _level)
+{
     if (_log == NULL) {
         return -1;
     }
@@ -674,7 +697,8 @@ int clog_set_level(clog_t *_log, int _level) {
     return 0;
 }
 
-int clog_get_size(clog_t *_log) {
+int clog_get_size(clog_t *_log)
+{
     struct stat file_state = {0};
     if (_log == NULL) {
         return file_state.st_size;
@@ -696,7 +720,8 @@ int clog_get_size(clog_t *_log) {
     return file_state.st_size;
 }
 
-int clog_clear(clog_t *_log) {
+int clog_clear(clog_t *_log)
+{
     int result = 0;
     if (_log == NULL) {
         return result;
@@ -721,7 +746,8 @@ int clog_clear(clog_t *_log) {
 
 int _clog_error(
     clog_t *_log, const char *_file, size_t _line,
-    const char *_func, const char *_fmt, ...) {
+    const char *_func, const char *_fmt, ...)
+{
     int result = 0;
     if (_log == NULL || _file == NULL ||
         _func == NULL || _fmt == NULL) {
@@ -759,7 +785,8 @@ int _clog_error(
 
 int _clog_warn(
     clog_t *_log, const char *_file, size_t _line,
-    const char *_func, const char *_fmt, ...) {
+    const char *_func, const char *_fmt, ...)
+{
     int result = 0;
     if (_log == NULL || _file == NULL ||
         _func == NULL || _fmt == NULL) {
@@ -797,7 +824,8 @@ int _clog_warn(
 
 int _clog_info(
     clog_t *_log, const char *_file, size_t _line,
-    const char *_func, const char *_fmt, ...) {
+    const char *_func, const char *_fmt, ...)
+{
     int result = 0;
     if (_log == NULL || _file == NULL ||
         _func == NULL || _fmt == NULL) {
@@ -835,7 +863,8 @@ int _clog_info(
 
 int _clog_debug(
     clog_t *_log, const char *_file, size_t _line,
-    const char *_func, const char *_fmt, ...) {
+    const char *_func, const char *_fmt, ...)
+{
     int result = 0;
     if (_log == NULL || _file == NULL ||
         _func == NULL || _fmt == NULL) {
@@ -871,7 +900,8 @@ int _clog_debug(
     return result;
 }
 
-int _clog_status(clog_t *_log, const char *_fmt, ...) {
+int _clog_status(clog_t *_log, const char *_fmt, ...)
+{
     int result = 0;
     if (_log == NULL || _fmt == NULL) {
         return 0;

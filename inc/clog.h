@@ -4,6 +4,12 @@
 
 #include <stddef.h>
 
+#ifdef _MSC_VER
+    #define EXPORT __declspec(dllexport)
+#else
+    #define EXPORT
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -22,21 +28,21 @@ typedef struct clog_t clog_t;
  * @_msgsz_max: max length of a piece of message
  * @return: a CLog object pointer or NULL
  ************************************/
-clog_t *clog_create(unsigned int _msgsz_max);
+EXPORT clog_t *clog_create(unsigned int _msgsz_max);
 
 /************************************
  * # create a CLog object by config file
  * @_cfgpath: config file path
  * @return: a CLog object pointer or NULL
  ************************************/
-clog_t *clog_read_cfg(
+EXPORT clog_t *clog_read_cfg(
     const char *_cfgpath);
 
 /************************************
  * # free a CLog object
  * @_log: a CLog object pointer created by clog_create
  ************************************/
-void clog_desrtroy(clog_t *_log);
+EXPORT void clog_desrtroy(clog_t *_log);
 
 /************************************
  * # show date and time in log
@@ -44,7 +50,7 @@ void clog_desrtroy(clog_t *_log);
  * @_show:  0 is not
  * @return: 0 is success
  ************************************/
-int clog_use_datetime(
+EXPORT int clog_use_datetime(
     clog_t *_log, int _show);
 
 /************************************
@@ -53,7 +59,7 @@ int clog_use_datetime(
  * @_show:  0 is not
  * @return: 0 is success
  ************************************/
-int clog_use_level(
+EXPORT int clog_use_level(
     clog_t *_log, int _show);
 
 /************************************
@@ -62,7 +68,7 @@ int clog_use_level(
  * @_show:  0 is not
  * @return: 0 is success
  ************************************/
-int clog_use_position(
+EXPORT int clog_use_position(
     clog_t *_log, int _show);
 
 /************************************
@@ -71,7 +77,7 @@ int clog_use_position(
  * @_show:  0 is not
  * @return: 0 is success
  ************************************/
-int clog_use_function(
+EXPORT int clog_use_function(
     clog_t *_log, int _show);
 
 /************************************
@@ -80,7 +86,7 @@ int clog_use_function(
  * @_show:  0 is not
  * @return: 0 is success
  ************************************/
-int clog_use_stdout(
+EXPORT int clog_use_stdout(
     clog_t *_log, int _show);
 
 /************************************
@@ -89,7 +95,7 @@ int clog_use_stdout(
  * @_show:  0 is not
  * @return: 0 is success
  ************************************/
-int clog_use_name(
+EXPORT int clog_use_name(
     clog_t *_log, int _show);
 
 /************************************
@@ -98,7 +104,7 @@ int clog_use_name(
  * @_name:  new file name
  * @return: 0 is success
  ************************************/
-int clog_set_name(
+EXPORT int clog_set_name(
     clog_t *_log, const char *_name);
 
 /************************************
@@ -107,7 +113,7 @@ int clog_set_name(
  * @_dire:  new file directory
  * @return: 0 is success
  ************************************/
-int clog_set_dir(
+EXPORT int clog_set_dir(
     clog_t *_log, const char *_dire);
 
 /************************************
@@ -116,7 +122,7 @@ int clog_set_dir(
  * @_envvar:  env var name
  * @return: 0 is success
  ************************************/
-int clog_set_dir_envvar(
+EXPORT int clog_set_dir_envvar(
     clog_t *_log, const char *_envvar);
 
 /************************************
@@ -125,7 +131,7 @@ int clog_set_dir_envvar(
  * @_level:  log level
  * @return: 0 is success
  ************************************/
-int clog_set_level(
+EXPORT int clog_set_level(
     clog_t *_log, int _level);
 
 /************************************
@@ -133,32 +139,32 @@ int clog_set_level(
  * @_log: a CLog object pointer
  * @return: size of all current logs
  ************************************/
-int clog_get_size(clog_t *_log);
+EXPORT int clog_get_size(clog_t *_log);
 
 /************************************
  * # clear all current logs
  * @_log: a CLog object pointer
  * @return: 0 is sucess
  ************************************/
-int clog_clear(clog_t *_log);
+EXPORT int clog_clear(clog_t *_log);
 
-int _clog_error(
+EXPORT int _clog_error(
     clog_t *_log, const char *_file, size_t _line,
     const char *_func, const char *_fmt, ...);
 
-int _clog_warn(
+EXPORT int _clog_warn(
     clog_t *_log, const char *_file, size_t _line,
     const char *_func, const char *_fmt, ...);
 
-int _clog_info(
+EXPORT int _clog_info(
     clog_t *_log, const char *_file, size_t _line,
     const char *_func, const char *_fmt, ...);
 
-int _clog_debug(
+EXPORT int _clog_debug(
     clog_t *_log, const char *_file, size_t _line,
     const char *_func, const char *_fmt, ...);
 
-int _clog_status(
+EXPORT int _clog_status(
     clog_t *_log, const char *_fmt, ...);
 
 /************************************

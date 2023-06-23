@@ -1,2 +1,7 @@
-*.user
-*.log
+.vscode/
+build/
+bin/
+lib/
+*.dll
+*.a
+*.exe
